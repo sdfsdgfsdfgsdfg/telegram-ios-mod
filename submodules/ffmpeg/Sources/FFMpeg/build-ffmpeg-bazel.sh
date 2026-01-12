@@ -31,6 +31,7 @@ THIN="$BUILD_DIR/thin"
 
 PKG_CONFIG="$SOURCE_DIR/pkg-config"
 
+# Force Bazel rebuild v2 - include homebrew paths for pkg-config
 export PATH="$SOURCE_DIR:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 LIB_NAMES="libavcodec libavformat libavutil libswresample"
