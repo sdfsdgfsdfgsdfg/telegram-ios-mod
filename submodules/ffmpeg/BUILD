@@ -275,6 +275,8 @@ genrule(
         fi
 
         chmod +x "$$SOURCE_PATH/build-ffmpeg-bazel.sh"
+        chmod +x "$$SOURCE_PATH/gas-preprocessor.pl"
+        chmod +x "$$SOURCE_PATH/pkg-config"
         "$$SOURCE_PATH/build-ffmpeg-bazel.sh" "$$VARIANT" "$$BUILD_ARCH" "$$BUILD_DIR" "$$SOURCE_PATH" "$$FFMPEG_VERSION"
     """ + "\n" + "\n".join([
         "cp \"$$BUILD_DIR/FFmpeg-iOS/include/{header_path}\" \"$(location Public/third_party/ffmpeg/{header_path})\"".format(header_path = header_path) for header_path in ffmpeg_header_paths

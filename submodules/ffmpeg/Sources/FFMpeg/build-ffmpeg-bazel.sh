@@ -31,8 +31,16 @@ THIN="$BUILD_DIR/thin"
 
 PKG_CONFIG="$SOURCE_DIR/pkg-config"
 
-# Force Bazel rebuild v2 - include homebrew paths for pkg-config
-export PATH="$SOURCE_DIR:/opt/homebrew/bin:/usr/local/bin:$PATH"
+# Force Bazel rebuild v3 - include homebrew paths for pkg-config
+export PATH="$SOURCE_DIR:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+
+# Make gas-preprocessor.pl executable early
+chmod +x "$SOURCE_DIR/gas-preprocessor.pl" 2>/dev/null || true
+chmod +x "$SOURCE_DIR/pkg-config" 2>/dev/null || true
+
+echo "DEBUG: PATH=$PATH"
+echo "DEBUG: GAS_PREPROCESSOR_PATH=$SOURCE_DIR/gas-preprocessor.pl"
+echo "DEBUG: gas-preprocessor.pl exists: $(ls -la $SOURCE_DIR/gas-preprocessor.pl 2>&1)"
 
 LIB_NAMES="libavcodec libavformat libavutil libswresample"
 
@@ -104,6 +112,9 @@ then
 		echo '$GAS_PREPROCESSOR_PATH not found at '"$GAS_PREPROCESSOR_PATH"
 		exit 1
 	fi
+	
+	# Make gas-preprocessor executable
+	chmod +x "$GAS_PREPROCESSOR_PATH"
 
 	if [ ! -r $SOURCE ]; then
 		echo "FFmpeg source not found at $SOURCE"
