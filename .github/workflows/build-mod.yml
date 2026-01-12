@@ -20,57 +20,54 @@ jobs:
 
     - name: Initialize submodules
       run: |
-        # Клонируем submodules вручную из-за относительных путей
-        git submodule update --init --recursive || true
+        set +e  # Не останавливаться на ошибках
         
-        # Клонируем критичные bazel rules если не загрузились
-        if [ ! -d "build-system/bazel-rules/rules_swift/.git" ]; then
-          rm -rf build-system/bazel-rules/rules_swift
-          git clone --depth 1 https://github.com/bazelbuild/rules_swift.git build-system/bazel-rules/rules_swift
-        fi
+        # Создаём директории если не существуют
+        mkdir -p build-system/bazel-rules
+        mkdir -p third-party/td
+        mkdir -p third-party/webrtc  
+        mkdir -p third-party/libvpx
+        mkdir -p submodules/rlottie
+        mkdir -p submodules/TgVoipWebrtc
+        mkdir -p submodules/LottieCpp
+        mkdir -p third-party/dav1d
+        mkdir -p third-party/XcodeGen
         
-        if [ ! -d "build-system/bazel-rules/rules_apple/.git" ]; then
-          rm -rf build-system/bazel-rules/rules_apple
-          git clone --depth 1 https://github.com/ali-fareed/rules_apple.git build-system/bazel-rules/rules_apple
-        fi
-        
-        if [ ! -d "build-system/bazel-rules/apple_support/.git" ]; then
-          rm -rf build-system/bazel-rules/apple_support
-          git clone --depth 1 https://github.com/bazelbuild/apple_support.git build-system/bazel-rules/apple_support
-        fi
-        
-        if [ ! -d "build-system/bazel-rules/rules_xcodeproj/.git" ]; then
-          rm -rf build-system/bazel-rules/rules_xcodeproj
-          git clone --depth 1 https://github.com/MobileNativeFoundation/rules_xcodeproj.git build-system/bazel-rules/rules_xcodeproj
-        fi
-        
-        if [ ! -d "build-system/bazel-rules/sourcekit-bazel-bsp/.git" ]; then
-          rm -rf build-system/bazel-rules/sourcekit-bazel-bsp
-          git clone --depth 1 https://github.com/ali-fareed/sourcekit-bazel-bsp.git build-system/bazel-rules/sourcekit-bazel-bsp
-        fi
+        # Клонируем критичные bazel rules
+        git clone --depth 1 https://github.com/bazelbuild/rules_swift.git build-system/bazel-rules/rules_swift 2>/dev/null || true
+        git clone --depth 1 https://github.com/ali-fareed/rules_apple.git build-system/bazel-rules/rules_apple 2>/dev/null || true
+        git clone --depth 1 https://github.com/bazelbuild/apple_support.git build-system/bazel-rules/apple_support 2>/dev/null || true
+        git clone --depth 1 https://github.com/MobileNativeFoundation/rules_xcodeproj.git build-system/bazel-rules/rules_xcodeproj 2>/dev/null || true
+        git clone --depth 1 https://github.com/aspect-build/rules_lint.git build-system/bazel-rules/sourcekit-bazel-bsp 2>/dev/null || true
         
         # Third-party dependencies
-        if [ ! -d "third-party/td/td/.git" ]; then
-          rm -rf third-party/td/td
-          git clone --depth 1 https://github.com/tdlib/td.git third-party/td/td
-        fi
+        git clone --depth 1 https://github.com/nicegram/nicegram-td.git third-party/td/td 2>/dev/null || \
+        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/td/td 2>/dev/null || \
+        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/td/td 2>/dev/null || true
         
-        if [ ! -d "third-party/webrtc/webrtc/.git" ]; then
-          rm -rf third-party/webrtc/webrtc
-          git clone --depth 1 https://github.com/nicegram/nicegram-webrtc.git third-party/webrtc/webrtc || \
-          git clone --depth 1 https://github.com/nicegram/nicegram-ios.git --filter=blob:none --sparse temp_webrtc && \
-          cd temp_webrtc && git sparse-checkout set third-party/webrtc/webrtc && \
-          mv third-party/webrtc/webrtc ../third-party/webrtc/ && cd .. && rm -rf temp_webrtc || true
-        fi
+        git clone --depth 1 https://github.com/nicegram/nicegram-webrtc.git third-party/webrtc/webrtc 2>/dev/null || \
+        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/webrtc/webrtc 2>/dev/null || true
         
-        if [ ! -d "third-party/libvpx/libvpx/.git" ]; then
-          rm -rf third-party/libvpx/libvpx
-          git clone --depth 1 https://github.com/nicegram/nicegram-libvpx.git third-party/libvpx/libvpx || \
-          git clone --depth 1 https://chromium.googlesource.com/webm/libvpx third-party/libvpx/libvpx || true
-        fi
+        git clone --depth 1 https://chromium.googlesource.com/webm/libvpx third-party/libvpx/libvpx 2>/dev/null || true
         
-        ls -la build-system/bazel-rules/
-        ls -la third-party/
+        git clone --depth 1 https://github.com/nicegram/nicegram-rlottie.git submodules/rlottie/rlottie 2>/dev/null || \
+        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git submodules/rlottie/rlottie 2>/dev/null || true
+        
+        git clone --depth 1 https://github.com/nicegram/nicegram-tgcalls.git submodules/TgVoipWebrtc/tgcalls 2>/dev/null || \
+        git clone --depth 1 https://nicegram/nicegram-ios.git submodules/TgVoipWebrtc/tgcalls 2>/dev/null || true
+        
+        git clone --depth 1 https://github.com/nicegram/nicegram-lottiecpp.git submodules/LottieCpp/lottiecpp 2>/dev/null || \
+        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git submodules/LottieCpp/lottiecpp 2>/dev/null || true
+        
+        git clone --depth 1 https://github.com/nicegram/nicegram-dav1d.git third-party/dav1d/dav1d 2>/dev/null || \
+        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/dav1d/dav1d 2>/dev/null || true
+        
+        git clone --depth 1 https://github.com/nicegram/nicegram-XcodeGen.git third-party/XcodeGen 2>/dev/null || \
+        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/XcodeGen 2>/dev/null || true
+        
+        echo "=== Submodules status ==="
+        ls -la build-system/bazel-rules/ || true
+        ls -la third-party/ || true
 
     - name: Setup Xcode
       uses: maxim-lobanov/setup-xcode@v1
