@@ -121,8 +121,13 @@ then
 		exit 1
 	fi
 
-	# Make configure executable
+	# Make configure and all scripts executable
 	chmod +x "$SOURCE/configure"
+	# Fix Error 126 - make all shell scripts executable
+	find "$SOURCE" -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
+	find "$SOURCE" -name "version.sh" -exec chmod +x {} \; 2>/dev/null || true
+	chmod +x "$SOURCE/ffbuild/version.sh" 2>/dev/null || true
+	chmod +x "$SOURCE/compat/"*.sh 2>/dev/null || true
 
 	for RAW_ARCH in $ARCHS
 	do
