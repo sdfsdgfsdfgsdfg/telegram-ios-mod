@@ -44,6 +44,11 @@ jobs:
           git clone https://github.com/MobileNativeFoundation/rules_xcodeproj.git build-system/bazel-rules/rules_xcodeproj
         fi
         
+        if [ ! -d "build-system/bazel-rules/sourcekit-bazel-bsp/.git" ]; then
+          rm -rf build-system/bazel-rules/sourcekit-bazel-bsp
+          git clone https://github.com/ali-fareed/sourcekit-bazel-bsp.git build-system/bazel-rules/sourcekit-bazel-bsp
+        fi
+        
         ls -la build-system/bazel-rules/
 
     - name: Setup Xcode
