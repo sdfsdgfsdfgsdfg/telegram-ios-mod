@@ -79,7 +79,7 @@ jobs:
           echo 'telegram_bundle_id = "org.telegram.Telegram-iOS-Mod"' >> build-input/configuration-repository/variables.bzl
           echo 'telegram_api_id = "0"' >> build-input/configuration-repository/variables.bzl
           echo 'telegram_api_hash = ""' >> build-input/configuration-repository/variables.bzl
-          echo 'telegram_team_id = ""' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_team_id = "ABCDE12345"' >> build-input/configuration-repository/variables.bzl
           echo 'telegram_app_center_id = ""' >> build-input/configuration-repository/variables.bzl
           echo 'telegram_is_internal_build = "false"' >> build-input/configuration-repository/variables.bzl
           echo 'telegram_is_appstore_build = "false"' >> build-input/configuration-repository/variables.bzl
@@ -130,7 +130,7 @@ jobs:
           echo '  "bundle_id": "org.telegram.Telegram-iOS-Mod",' >> build-configuration.json
           echo '  "api_id": "0",' >> build-configuration.json
           echo '  "api_hash": "",' >> build-configuration.json
-          echo '  "team_id": "",' >> build-configuration.json
+          echo '  "team_id": "ABCDE12345",' >> build-configuration.json
           echo '  "app_center_id": "",' >> build-configuration.json
           echo '  "is_internal_build": false,' >> build-configuration.json
           echo '  "is_appstore_build": false,' >> build-configuration.json
