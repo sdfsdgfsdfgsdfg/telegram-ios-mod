@@ -101,8 +101,30 @@ jobs:
         EOF
         
         mkdir -p build-input/configuration-repository/provisioning
+        
+        # Создаём пустые provisioning profiles (для сборки симулятора)
+        touch build-input/configuration-repository/provisioning/Telegram.mobileprovision
+        touch build-input/configuration-repository/provisioning/NotificationContent.mobileprovision
+        touch build-input/configuration-repository/provisioning/NotificationService.mobileprovision
+        touch build-input/configuration-repository/provisioning/Share.mobileprovision
+        touch build-input/configuration-repository/provisioning/Widget.mobileprovision
+        touch build-input/configuration-repository/provisioning/WatchApp.mobileprovision
+        touch build-input/configuration-repository/provisioning/WatchExtension.mobileprovision
+        touch build-input/configuration-repository/provisioning/Intents.mobileprovision
+        touch build-input/configuration-repository/provisioning/BroadcastUpload.mobileprovision
+        
         cat > build-input/configuration-repository/provisioning/BUILD << 'EOF'
-        exports_files([])
+        exports_files([
+            "Telegram.mobileprovision",
+            "NotificationContent.mobileprovision",
+            "NotificationService.mobileprovision",
+            "Share.mobileprovision",
+            "Widget.mobileprovision",
+            "WatchApp.mobileprovision",
+            "WatchExtension.mobileprovision",
+            "Intents.mobileprovision",
+            "BroadcastUpload.mobileprovision",
+        ])
         EOF
 
     - name: Create configuration JSON
