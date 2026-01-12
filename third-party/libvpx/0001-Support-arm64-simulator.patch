@@ -56,8 +56,7 @@ diff --git a/configure b/configure
 index beea65032..f29c9f327 100755
 --- a/configure
 +++ b/configure
-@@ -100,6 +100,7 @@ EOF
- all_platforms="${all_platforms} arm64-android-gcc"
+@@ -100,6 +100,7 @@ all_platforms="${all_platforms} arm64-android-gcc"
  all_platforms="${all_platforms} arm64-darwin-gcc"
  all_platforms="${all_platforms} arm64-darwin20-gcc"
 +all_platforms="${all_platforms} arm64-iphonesimulator-gcc"
