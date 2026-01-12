@@ -2,6 +2,7 @@ import Foundation
 import SwiftSignalKit
 import Postbox
 import TelegramCore
+import ModSettingsUI
 
 // MARK: - Anti-Delete Message Attribute
 

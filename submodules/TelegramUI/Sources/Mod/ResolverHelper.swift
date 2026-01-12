@@ -1,6 +1,7 @@
 import Foundation
 import TelegramCore
 import Postbox
+import ModSettingsUI
 
 // MARK: - Resolver Helper
 
