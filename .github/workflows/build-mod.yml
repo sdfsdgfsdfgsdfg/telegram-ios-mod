@@ -99,7 +99,6 @@ jobs:
           --xcodeManagedCodesigning \
           --configuration=debug_sim_arm64 \
           --buildNumber=10001 \
-          --disableProvisioningProfiles \
           || echo "Build completed with warnings"
       continue-on-error: true
 
