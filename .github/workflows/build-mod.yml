@@ -40,6 +40,14 @@ jobs:
         git clone --depth 1 https://github.com/MobileNativeFoundation/rules_xcodeproj.git build-system/bazel-rules/rules_xcodeproj 2>/dev/null || true
         git clone --depth 1 https://github.com/aspect-build/rules_lint.git build-system/bazel-rules/sourcekit-bazel-bsp 2>/dev/null || true
         
+        # Создаём правильный MODULE.bazel для sourcekit-bazel-bsp
+        cat > build-system/bazel-rules/sourcekit-bazel-bsp/MODULE.bazel << 'MODEOF'
+        module(
+            name = "sourcekit_bazel_bsp",
+            version = "0.0.1",
+        )
+        MODEOF
+        
         # Third-party dependencies
         git clone --depth 1 https://github.com/nicegram/nicegram-td.git third-party/td/td 2>/dev/null || \
         git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/td/td 2>/dev/null || \
