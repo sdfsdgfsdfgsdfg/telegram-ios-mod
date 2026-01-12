@@ -20,8 +20,31 @@ jobs:
 
     - name: Initialize submodules
       run: |
-        git submodule update --init --recursive
-        git submodule status
+        # Клонируем submodules вручную из-за относительных путей
+        git submodule update --init --recursive || true
+        
+        # Клонируем критичные bazel rules если не загрузились
+        if [ ! -d "build-system/bazel-rules/rules_swift/.git" ]; then
+          rm -rf build-system/bazel-rules/rules_swift
+          git clone https://github.com/bazelbuild/rules_swift.git build-system/bazel-rules/rules_swift
+        fi
+        
+        if [ ! -d "build-system/bazel-rules/rules_apple/.git" ]; then
+          rm -rf build-system/bazel-rules/rules_apple
+          git clone https://github.com/ali-fareed/rules_apple.git build-system/bazel-rules/rules_apple
+        fi
+        
+        if [ ! -d "build-system/bazel-rules/apple_support/.git" ]; then
+          rm -rf build-system/bazel-rules/apple_support
+          git clone https://github.com/bazelbuild/apple_support.git build-system/bazel-rules/apple_support
+        fi
+        
+        if [ ! -d "build-system/bazel-rules/rules_xcodeproj/.git" ]; then
+          rm -rf build-system/bazel-rules/rules_xcodeproj
+          git clone https://github.com/MobileNativeFoundation/rules_xcodeproj.git build-system/bazel-rules/rules_xcodeproj
+        fi
+        
+        ls -la build-system/bazel-rules/
 
     - name: Setup Xcode
       uses: maxim-lobanov/setup-xcode@v1
