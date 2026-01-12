@@ -58,6 +58,7 @@ import HashtagSearchUI
 import ActionSheetPeerItem
 import TelegramCallsUI
 import PeerInfoAvatarListNode
+import ModSettingsUI
 import PasswordSetupUI
 import CalendarMessageScreen
 import TooltipUI
