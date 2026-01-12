@@ -55,6 +55,15 @@ jobs:
           git clone --depth 1 https://github.com/yonaskolb/XcodeGen.git third-party/XcodeGen || true
           git clone --depth 1 https://github.com/ali-fareed/webrtc.git third-party/webrtc/webrtc || true
           
+          # Patch WebRTC for FFmpeg 7.x compatibility (reordered_opaque was removed)
+          if [ -f "third-party/webrtc/webrtc/modules/video_coding/codecs/h264/h264_decoder_impl.cc" ]; then
+            echo "Patching WebRTC h264_decoder_impl.cc for FFmpeg 7.x..."
+            sed -i '' 's/av_frame->reordered_opaque = context->reordered_opaque;/\/\/ FFmpeg 7.x: reordered_opaque removed, use opaque instead\n  av_frame->opaque = context->opaque;/g' third-party/webrtc/webrtc/modules/video_coding/codecs/h264/h264_decoder_impl.cc
+            sed -i '' 's/av_context_->reordered_opaque = frame_timestamp_us;/av_context_->opaque = (void*)frame_timestamp_us;/g' third-party/webrtc/webrtc/modules/video_coding/codecs/h264/h264_decoder_impl.cc
+            sed -i '' 's/av_frame_->reordered_opaque/(int64_t)av_frame_->opaque/g' third-party/webrtc/webrtc/modules/video_coding/codecs/h264/h264_decoder_impl.cc
+            echo "WebRTC patch applied"
+          fi
+          
           # Debug: check rlottie
           echo "=== rlottie contents ==="
           ls -la submodules/rlottie/rlottie/ || echo "rlottie empty"
