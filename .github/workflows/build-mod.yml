@@ -33,7 +33,7 @@ jobs:
           mkdir -p build-system/bazel-rules/sourcekit-bazel-bsp
           echo 'module(name = "sourcekit_bazel_bsp", version = "0.0.1")' > build-system/bazel-rules/sourcekit-bazel-bsp/MODULE.bazel
           echo '# Empty' > build-system/bazel-rules/sourcekit-bazel-bsp/BUILD
-          
+           
           # Clone rlottie from Samsung
           RLOTTIE_URL="https://github.com/Samsung/rlottie.git"
           git clone --depth 1 "$RLOTTIE_URL" submodules/rlottie/rlottie || true
@@ -110,6 +110,19 @@ jobs:
           echo '    "Intents.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
           echo '    "BroadcastUpload.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
           echo '])' >> build-input/configuration-repository/provisioning/BUILD
+          
+          echo "=== Debug: Verify configuration ==="
+          echo "--- provisioning BUILD ---"
+          cat build-input/configuration-repository/provisioning/BUILD
+          echo "--- provisioning files ---"
+          ls -la build-input/configuration-repository/provisioning/
+          echo "--- MODULE.bazel ---"
+          cat build-input/configuration-repository/MODULE.bazel
+
+      - name: Clean Bazel cache
+        run: |
+          bazel clean --expunge || true
+          rm -rf ~/.cache/bazel || true
 
       - name: Create configuration JSON
         run: |
