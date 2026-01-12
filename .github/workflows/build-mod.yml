@@ -49,7 +49,8 @@ jobs:
           
           # Clone other deps
           git clone --depth 1 https://github.com/tdlib/td.git third-party/td/td || true
-          git clone --depth 1 https://github.com/webmproject/libvpx.git third-party/libvpx/libvpx || true
+          # Clone libvpx at a specific tag that works with the arm64 simulator patch
+          git clone --depth 1 --branch v1.13.1 https://github.com/webmproject/libvpx.git third-party/libvpx/libvpx || true
           git clone --depth 1 https://github.com/ali-fareed/dav1d.git third-party/dav1d/dav1d || true
           git clone --depth 1 https://github.com/yonaskolb/XcodeGen.git third-party/XcodeGen || true
           git clone --depth 1 https://github.com/ali-fareed/webrtc.git third-party/webrtc/webrtc || true

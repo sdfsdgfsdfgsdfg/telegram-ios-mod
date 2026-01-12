@@ -71,9 +71,20 @@ genrule(
     cp -R "$$SOURCE_PATH" "$$BUILD_DIR/"
 
     pushd "$$BUILD_DIR/libvpx"
-    # Apply patch with fuzz factor to handle line number differences in newer libvpx
-    # Use --forward to skip already applied hunks, || true to continue if some hunks fail
-    patch -p1 --fuzz=3 --forward < ../0001-Support-arm64-simulator.patch || true
+    
+    # Try to apply patch, if it fails use sed as fallback
+    if ! patch -p1 --fuzz=3 --forward < ../0001-Support-arm64-simulator.patch; then
+        echo "Patch failed, applying changes manually with sed..."
+        
+        # Add arm64-iphonesimulator-gcc to all_platforms in configure
+        if ! grep -q "arm64-iphonesimulator-gcc" configure; then
+            sed -i.bak 's/all_platforms="\\$${all_platforms} arm64-darwin20-gcc"/all_platforms="\\$${all_platforms} arm64-darwin20-gcc"\\nall_platforms="\\$${all_platforms} arm64-iphonesimulator-gcc"/' configure
+        fi
+        
+        # Modify build/make/configure.sh to support iphonesimulator
+        sed -i.bak 's/darwin)/darwin|iphonesimulator)/' build/make/configure.sh
+    fi
+    
     popd
 
     mkdir -p "$$BUILD_DIR/Public/libvpx"
