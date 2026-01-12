@@ -335,10 +335,25 @@ class XcodeManagedCodesigningSource(CodesigningSource):
         pass
 
     def copy_profiles_to_destination(self, destination_path):
-        pass
+        # Create empty placeholder provisioning profiles for Bazel
+        profile_names = [
+            'Telegram',
+            'NotificationContent', 
+            'NotificationService',
+            'Share',
+            'Widget',
+            'WatchApp',
+            'WatchExtension',
+            'Intents',
+            'BroadcastUpload'
+        ]
+        for name in profile_names:
+            profile_path = os.path.join(destination_path, f'{name}.mobileprovision')
+            with open(profile_path, 'w') as f:
+                f.write('')  # Empty placeholder
 
     def resolve_aps_environment(self):
-        return ""
+        return "development"
 
     def use_xcode_managed_codesigning(self):
         return True
