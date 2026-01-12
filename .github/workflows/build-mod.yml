@@ -145,6 +145,7 @@ jobs:
         run: |
           python3 build-system/Make/Make.py --overrideXcodeVersion build \
             --configurationPath=build-configuration.json \
+            --xcodeManagedCodesigning \
             --disableProvisioningProfiles \
             --configuration=debug_sim_arm64 \
             --buildNumber=10001 || echo "Build completed with warnings"
