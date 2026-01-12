@@ -142,8 +142,17 @@ jobs:
             --configurationPath=build-configuration.json \
             --xcodeManagedCodesigning \
             --configuration=debug_sim_arm64 \
-            --buildNumber=10001 || echo "Build completed with warnings"
+            --buildNumber=10001 2>&1 | tee build.log || echo "Build completed with warnings"
         continue-on-error: true
+        timeout-minutes: 120
+
+      - name: Show build errors
+        if: always()
+        run: |
+          echo "=== Last 200 lines of build log ==="
+          tail -200 build.log 2>/dev/null || true
+          echo "=== Searching for ERROR in log ==="
+          grep -i "error:" build.log 2>/dev/null | tail -50 || true
 
       - name: List build artifacts
         run: |
