@@ -100,8 +100,8 @@ then
 		echo "PATH=$PATH"
 		echo "pkg-config=$(which pkg-config)"
 	fi
-	if [ ! `which "$GAS_PREPROCESSOR_PATH"` ]; then
-		echo '$GAS_PREPROCESSOR_PATH not found.'
+	if [ ! -f "$GAS_PREPROCESSOR_PATH" ]; then
+		echo '$GAS_PREPROCESSOR_PATH not found at '"$GAS_PREPROCESSOR_PATH"
 		exit 1
 	fi
 
