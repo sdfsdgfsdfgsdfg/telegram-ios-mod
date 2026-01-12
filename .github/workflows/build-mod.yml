@@ -34,10 +34,27 @@ jobs:
           echo 'module(name = "sourcekit_bazel_bsp", version = "0.0.1")' > build-system/bazel-rules/sourcekit-bazel-bsp/MODULE.bazel
           echo '# Empty' > build-system/bazel-rules/sourcekit-bazel-bsp/BUILD
           
-          git clone --depth 1 https://github.com/tdlib/td.git third-party/td/td 2>/dev/null || true
-          git clone --depth 1 https://chromium.googlesource.com/webm/libvpx third-party/libvpx/libvpx 2>/dev/null || true
-          git clone --depth 1 https://github.com/nicegram/nicegram-dav1d.git third-party/dav1d/dav1d 2>/dev/null || true
-          git clone --depth 1 https://github.com/yonaskolb/XcodeGen.git third-party/XcodeGen 2>/dev/null || true
+          # Clone rlottie from Samsung
+          RLOTTIE_URL="https://github.com/Samsung/rlottie.git"
+          git clone --depth 1 "$RLOTTIE_URL" submodules/rlottie/rlottie || true
+          
+          # Clone LottieCpp
+          git clone --depth 1 https://github.com/ali-fareed/lottiecpp.git submodules/LottieCpp/lottiecpp || true
+          
+          # Clone tgcalls from TelegramMessenger
+          TGCALLS_URL="https://github.com/TelegramMessenger/tgcalls.git"
+          git clone --depth 1 "$TGCALLS_URL" submodules/TgVoipWebrtc/tgcalls || true
+          
+          # Clone other deps
+          git clone --depth 1 https://github.com/tdlib/td.git third-party/td/td || true
+          git clone --depth 1 https://github.com/webmproject/libvpx.git third-party/libvpx/libvpx || true
+          git clone --depth 1 https://github.com/ali-fareed/dav1d.git third-party/dav1d/dav1d || true
+          git clone --depth 1 https://github.com/yonaskolb/XcodeGen.git third-party/XcodeGen || true
+          git clone --depth 1 https://github.com/ali-fareed/webrtc.git third-party/webrtc/webrtc || true
+          
+          # Debug: check rlottie
+          echo "=== rlottie contents ==="
+          ls -la submodules/rlottie/rlottie/ || echo "rlottie empty"
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -93,11 +110,6 @@ jobs:
           echo '    "Intents.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
           echo '    "BroadcastUpload.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
           echo '])' >> build-input/configuration-repository/provisioning/BUILD
-          
-          echo "=== Verifying BUILD file ==="
-          cat build-input/configuration-repository/provisioning/BUILD
-          echo "=== Listing provisioning files ==="
-          ls -la build-input/configuration-repository/provisioning/
 
       - name: Create configuration JSON
         run: |
