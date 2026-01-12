@@ -149,10 +149,14 @@ jobs:
       - name: Show build errors
         if: always()
         run: |
-          echo "=== Last 200 lines of build log ==="
-          tail -200 build.log 2>/dev/null || true
           echo "=== Searching for ERROR in log ==="
-          grep -i "error:" build.log 2>/dev/null | tail -50 || true
+          grep -i "error" build.log 2>/dev/null | grep -v "^cp" | tail -100 || true
+          echo ""
+          echo "=== Searching for ffmpeg errors ==="
+          grep -i -A5 -B5 "ffmpeg" build.log 2>/dev/null | grep -i "error\|fail\|fatal" | head -50 || true
+          echo ""
+          echo "=== Last 500 lines of build log ==="
+          tail -500 build.log 2>/dev/null || true
 
       - name: List build artifacts
         run: |
