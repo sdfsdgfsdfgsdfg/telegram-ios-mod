@@ -143,10 +143,11 @@ jobs:
 
       - name: Build Telegram
         run: |
-          python3 build-system/Make/Make.py --overrideXcodeVersion build \
+          python3 build-system/Make/Make.py --overrideXcodeVersion \
+            --bazelArguments="--//Telegram:disableProvisioningProfiles=True" \
+            build \
             --configurationPath=build-configuration.json \
             --xcodeManagedCodesigning \
-            --disableProvisioningProfiles \
             --configuration=debug_sim_arm64 \
             --buildNumber=10001 || echo "Build completed with warnings"
         continue-on-error: true
