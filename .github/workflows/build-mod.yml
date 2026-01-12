@@ -73,50 +73,49 @@ jobs:
           mkdir -p build-input/configuration-repository/provisioning
 
           cat > build-input/configuration-repository/variables.bzl << 'EOFVARS'
-          telegram_bazel_path = ""
-          telegram_bundle_id = "org.telegram.Telegram-iOS-Mod"
-          telegram_api_id = "0"
-          telegram_api_hash = ""
-          telegram_team_id = ""
-          telegram_app_center_id = ""
-          telegram_is_internal_build = "false"
-          telegram_is_appstore_build = "false"
-          telegram_appstore_id = "0"
-          telegram_app_specific_url_scheme = "tgmod"
-          telegram_premium_iap_product_id = ""
-          telegram_aps_environment = "development"
-          telegram_enable_siri = "false"
-          telegram_enable_icloud = "false"
-          telegram_use_xcode_managed_codesigning = "true"
-          EOFVARS
+telegram_bazel_path = ""
+telegram_bundle_id = "org.telegram.Telegram-iOS-Mod"
+telegram_api_id = "0"
+telegram_api_hash = ""
+telegram_team_id = ""
+telegram_app_center_id = ""
+telegram_is_internal_build = "false"
+telegram_is_appstore_build = "false"
+telegram_appstore_id = "0"
+telegram_app_specific_url_scheme = "tgmod"
+telegram_premium_iap_product_id = ""
+telegram_aps_environment = "development"
+telegram_enable_siri = "false"
+telegram_enable_icloud = "false"
+telegram_use_xcode_managed_codesigning = "true"
+EOFVARS
 
           touch build-input/configuration-repository/WORKSPACE
           echo 'module(name = "build_configuration")' > build-input/configuration-repository/MODULE.bazel
           touch build-input/configuration-repository/BUILD
 
-          touch build-input/configuration-repository/provisioning/Telegram.mobileprovision
-          touch build-input/configuration-repository/provisioning/NotificationContent.mobileprovision
-          touch build-input/configuration-repository/provisioning/NotificationService.mobileprovision
-          touch build-input/configuration-repository/provisioning/Share.mobileprovision
-          touch build-input/configuration-repository/provisioning/Widget.mobileprovision
-          touch build-input/configuration-repository/provisioning/WatchApp.mobileprovision
-          touch build-input/configuration-repository/provisioning/WatchExtension.mobileprovision
-          touch build-input/configuration-repository/provisioning/Intents.mobileprovision
-          touch build-input/configuration-repository/provisioning/BroadcastUpload.mobileprovision
+          for profile in Telegram NotificationContent NotificationService Share Widget WatchApp WatchExtension Intents BroadcastUpload; do
+            touch "build-input/configuration-repository/provisioning/${profile}.mobileprovision"
+          done
 
           cat > build-input/configuration-repository/provisioning/BUILD << 'EOFPROV'
-          exports_files([
-              "Telegram.mobileprovision",
-              "NotificationContent.mobileprovision",
-              "NotificationService.mobileprovision",
-              "Share.mobileprovision",
-              "Widget.mobileprovision",
-              "WatchApp.mobileprovision",
-              "WatchExtension.mobileprovision",
-              "Intents.mobileprovision",
-              "BroadcastUpload.mobileprovision",
-          ])
-          EOFPROV
+exports_files([
+    "Telegram.mobileprovision",
+    "NotificationContent.mobileprovision",
+    "NotificationService.mobileprovision",
+    "Share.mobileprovision",
+    "Widget.mobileprovision",
+    "WatchApp.mobileprovision",
+    "WatchExtension.mobileprovision",
+    "Intents.mobileprovision",
+    "BroadcastUpload.mobileprovision",
+])
+EOFPROV
+
+          echo "=== Configuration files ==="
+          ls -la build-input/configuration-repository/
+          ls -la build-input/configuration-repository/provisioning/
+          cat build-input/configuration-repository/provisioning/BUILD
 
       - name: Create configuration JSON
         run: |
