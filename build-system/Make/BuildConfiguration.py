@@ -45,14 +45,15 @@ class BuildConfiguration:
         string += 'telegram_api_hash = "{}"\n'.format(self.api_hash)
         string += 'telegram_team_id = "{}"\n'.format(self.team_id)
         string += 'telegram_app_center_id = "{}"\n'.format(self.app_center_id)
-        string += 'telegram_is_internal_build = "{}"\n'.format(self.is_internal_build)
-        string += 'telegram_is_appstore_build = "{}"\n'.format(self.is_appstore_build)
+        # These need to be lowercase 'true'/'false' for C preprocessor
+        string += 'telegram_is_internal_build = {}\n'.format('true' if self.is_internal_build else 'false')
+        string += 'telegram_is_appstore_build = {}\n'.format('true' if self.is_appstore_build else 'false')
         string += 'telegram_appstore_id = "{}"\n'.format(self.appstore_id)
         string += 'telegram_app_specific_url_scheme = "{}"\n'.format(self.app_specific_url_scheme)
         string += 'telegram_premium_iap_product_id = "{}"\n'.format(self.premium_iap_product_id)
         string += 'telegram_aps_environment = "{}"\n'.format(aps_environment)
-        string += 'telegram_enable_siri = {}\n'.format(self.enable_siri)
-        string += 'telegram_enable_icloud = {}\n'.format(self.enable_icloud)
+        string += 'telegram_enable_siri = {}\n'.format('true' if self.enable_siri else 'false')
+        string += 'telegram_enable_icloud = {}\n'.format('true' if self.enable_icloud else 'false')
         string += 'telegram_enable_watch = True\n'
 
         if os.path.exists(path):
