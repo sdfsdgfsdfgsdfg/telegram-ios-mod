@@ -110,6 +110,9 @@ then
 		exit 1
 	fi
 
+	# Make configure executable
+	chmod +x "$SOURCE/configure"
+
 	for RAW_ARCH in $ARCHS
 	do
 		ARCH="$RAW_ARCH"
