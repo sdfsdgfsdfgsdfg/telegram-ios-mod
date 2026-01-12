@@ -64,10 +64,11 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Install Bazel
+      - name: Install Bazel and dependencies
         run: |
-          brew install bazelisk
+          brew install bazelisk pkg-config yasm nasm
           bazel --version
+          pkg-config --version
 
       - name: Setup Python
         uses: actions/setup-python@v5
