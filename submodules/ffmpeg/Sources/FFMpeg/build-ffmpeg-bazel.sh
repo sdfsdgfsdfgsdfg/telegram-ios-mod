@@ -31,7 +31,7 @@ THIN="$BUILD_DIR/thin"
 
 PKG_CONFIG="$SOURCE_DIR/pkg-config"
 
-export PATH="$SOURCE_DIR:$PATH"
+export PATH="$SOURCE_DIR:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 LIB_NAMES="libavcodec libavformat libavutil libswresample"
 
