@@ -2,212 +2,163 @@ name: Build Telegram iOS Mod
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:  # Позволяет запускать вручную
+    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-14
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-    - name: Initialize submodules
-      run: |
-        set +e  # Не останавливаться на ошибках
-        
-        # Создаём директории если не существуют
-        mkdir -p build-system/bazel-rules
-        mkdir -p third-party/td
-        mkdir -p third-party/webrtc  
-        mkdir -p third-party/libvpx
-        mkdir -p submodules/rlottie
-        mkdir -p submodules/TgVoipWebrtc
-        mkdir -p submodules/LottieCpp
-        mkdir -p third-party/dav1d
-        mkdir -p third-party/XcodeGen
-        
-        # Клонируем критичные bazel rules
-        git clone --depth 1 https://github.com/bazelbuild/rules_swift.git build-system/bazel-rules/rules_swift 2>/dev/null || true
-        git clone --depth 1 https://github.com/ali-fareed/rules_apple.git build-system/bazel-rules/rules_apple 2>/dev/null || true
-        git clone --depth 1 https://github.com/bazelbuild/apple_support.git build-system/bazel-rules/apple_support 2>/dev/null || true
-        git clone --depth 1 https://github.com/MobileNativeFoundation/rules_xcodeproj.git build-system/bazel-rules/rules_xcodeproj 2>/dev/null || true
-        
-        # Создаём пустой sourcekit-bazel-bsp с правильным MODULE.bazel
-        mkdir -p build-system/bazel-rules/sourcekit-bazel-bsp
-        cat > build-system/bazel-rules/sourcekit-bazel-bsp/MODULE.bazel << 'MODEOF'
-module(
-    name = "sourcekit_bazel_bsp",
-    version = "0.0.1",
-)
-MODEOF
-        cat > build-system/bazel-rules/sourcekit-bazel-bsp/BUILD << 'BUILDEOF'
-# Empty BUILD file
-BUILDEOF
-        
-        # Third-party dependencies
-        git clone --depth 1 https://github.com/nicegram/nicegram-td.git third-party/td/td 2>/dev/null || \
-        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/td/td 2>/dev/null || \
-        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/td/td 2>/dev/null || true
-        
-        git clone --depth 1 https://github.com/nicegram/nicegram-webrtc.git third-party/webrtc/webrtc 2>/dev/null || \
-        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/webrtc/webrtc 2>/dev/null || true
-        
-        git clone --depth 1 https://chromium.googlesource.com/webm/libvpx third-party/libvpx/libvpx 2>/dev/null || true
-        
-        git clone --depth 1 https://github.com/nicegram/nicegram-rlottie.git submodules/rlottie/rlottie 2>/dev/null || \
-        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git submodules/rlottie/rlottie 2>/dev/null || true
-        
-        git clone --depth 1 https://github.com/nicegram/nicegram-tgcalls.git submodules/TgVoipWebrtc/tgcalls 2>/dev/null || \
-        git clone --depth 1 https://nicegram/nicegram-ios.git submodules/TgVoipWebrtc/tgcalls 2>/dev/null || true
-        
-        git clone --depth 1 https://github.com/nicegram/nicegram-lottiecpp.git submodules/LottieCpp/lottiecpp 2>/dev/null || \
-        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git submodules/LottieCpp/lottiecpp 2>/dev/null || true
-        
-        git clone --depth 1 https://github.com/nicegram/nicegram-dav1d.git third-party/dav1d/dav1d 2>/dev/null || \
-        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/dav1d/dav1d 2>/dev/null || true
-        
-        git clone --depth 1 https://github.com/nicegram/nicegram-XcodeGen.git third-party/XcodeGen 2>/dev/null || \
-        git clone --depth 1 https://github.com/nicegram/nicegram-ios.git third-party/XcodeGen 2>/dev/null || true
-        
-        echo "=== Submodules status ==="
-        ls -la build-system/bazel-rules/ || true
-        ls -la third-party/ || true
+      - name: Initialize submodules
+        run: |
+          set +e
+          mkdir -p build-system/bazel-rules
+          mkdir -p third-party/td
+          mkdir -p third-party/webrtc
+          mkdir -p third-party/libvpx
+          mkdir -p submodules/rlottie
+          mkdir -p submodules/TgVoipWebrtc
+          mkdir -p submodules/LottieCpp
+          mkdir -p third-party/dav1d
+          mkdir -p third-party/XcodeGen
 
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '15.4'
+          git clone --depth 1 https://github.com/bazelbuild/rules_swift.git build-system/bazel-rules/rules_swift 2>/dev/null || true
+          git clone --depth 1 https://github.com/ali-fareed/rules_apple.git build-system/bazel-rules/rules_apple 2>/dev/null || true
+          git clone --depth 1 https://github.com/bazelbuild/apple_support.git build-system/bazel-rules/apple_support 2>/dev/null || true
+          git clone --depth 1 https://github.com/MobileNativeFoundation/rules_xcodeproj.git build-system/bazel-rules/rules_xcodeproj 2>/dev/null || true
 
-    - name: Install Bazel
-      run: |
-        brew install bazelisk
-        bazel --version
+          mkdir -p build-system/bazel-rules/sourcekit-bazel-bsp
+          echo 'module(name = "sourcekit_bazel_bsp", version = "0.0.1")' > build-system/bazel-rules/sourcekit-bazel-bsp/MODULE.bazel
+          echo '# Empty' > build-system/bazel-rules/sourcekit-bazel-bsp/BUILD
 
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+          git clone --depth 1 https://github.com/nicegram/nicegram-td.git third-party/td/td 2>/dev/null || true
+          git clone --depth 1 https://github.com/nicegram/nicegram-webrtc.git third-party/webrtc/webrtc 2>/dev/null || true
+          git clone --depth 1 https://chromium.googlesource.com/webm/libvpx third-party/libvpx/libvpx 2>/dev/null || true
+          git clone --depth 1 https://github.com/nicegram/nicegram-rlottie.git submodules/rlottie/rlottie 2>/dev/null || true
+          git clone --depth 1 https://github.com/nicegram/nicegram-tgcalls.git submodules/TgVoipWebrtc/tgcalls 2>/dev/null || true
+          git clone --depth 1 https://github.com/nicegram/nicegram-lottiecpp.git submodules/LottieCpp/lottiecpp 2>/dev/null || true
+          git clone --depth 1 https://github.com/nicegram/nicegram-dav1d.git third-party/dav1d/dav1d 2>/dev/null || true
+          git clone --depth 1 https://github.com/yonaskolb/XcodeGen.git third-party/XcodeGen 2>/dev/null || true
 
-    - name: Create build configuration
-      run: |
-        # Создаём минимальную конфигурацию для сборки без подписи
-        mkdir -p build-input/configuration-repository
-        cat > build-input/configuration-repository/variables.bzl << 'EOF'
-        telegram_bazel_path = ""
-        telegram_bundle_id = "org.telegram.Telegram-iOS-Mod"
-        telegram_api_id = "0"
-        telegram_api_hash = ""
-        telegram_team_id = ""
-        telegram_app_center_id = ""
-        telegram_is_internal_build = "false"
-        telegram_is_appstore_build = "false"
-        telegram_appstore_id = "0"
-        telegram_app_specific_url_scheme = "tgmod"
-        telegram_premium_iap_product_id = ""
-        telegram_aps_environment = "development"
-        telegram_enable_siri = "false"
-        telegram_enable_icloud = "false"
-        telegram_use_xcode_managed_codesigning = "true"
-        EOF
-        
-        cat > build-input/configuration-repository/WORKSPACE << 'EOF'
-        EOF
-        
-        cat > build-input/configuration-repository/MODULE.bazel << 'EOF'
-        module(
-            name = "build_configuration",
-        )
-        EOF
-        
-        cat > build-input/configuration-repository/BUILD << 'EOF'
-        EOF
-        
-        mkdir -p build-input/configuration-repository/provisioning
-        
-        # Создаём пустые provisioning profiles (для сборки симулятора)
-        touch build-input/configuration-repository/provisioning/Telegram.mobileprovision
-        touch build-input/configuration-repository/provisioning/NotificationContent.mobileprovision
-        touch build-input/configuration-repository/provisioning/NotificationService.mobileprovision
-        touch build-input/configuration-repository/provisioning/Share.mobileprovision
-        touch build-input/configuration-repository/provisioning/Widget.mobileprovision
-        touch build-input/configuration-repository/provisioning/WatchApp.mobileprovision
-        touch build-input/configuration-repository/provisioning/WatchExtension.mobileprovision
-        touch build-input/configuration-repository/provisioning/Intents.mobileprovision
-        touch build-input/configuration-repository/provisioning/BroadcastUpload.mobileprovision
-        
-        cat > build-input/configuration-repository/provisioning/BUILD << 'EOF'
-        exports_files([
-            "Telegram.mobileprovision",
-            "NotificationContent.mobileprovision",
-            "NotificationService.mobileprovision",
-            "Share.mobileprovision",
-            "Widget.mobileprovision",
-            "WatchApp.mobileprovision",
-            "WatchExtension.mobileprovision",
-            "Intents.mobileprovision",
-            "BroadcastUpload.mobileprovision",
-        ])
-        EOF
+          echo "=== Submodules status ==="
+          ls -la build-system/bazel-rules/ || true
+          ls -la third-party/ || true
 
-    - name: Create configuration JSON
-      run: |
-        cat > build-configuration.json << 'EOF'
-        {
-          "bundle_id": "org.telegram.Telegram-iOS-Mod",
-          "api_id": "0",
-          "api_hash": "",
-          "team_id": "",
-          "app_center_id": "",
-          "is_internal_build": false,
-          "is_appstore_build": false,
-          "appstore_id": "0",
-          "app_specific_url_scheme": "tgmod",
-          "premium_iap_product_id": "",
-          "enable_siri": false,
-          "enable_icloud": false
-        }
-        EOF
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "15.4"
 
-    - name: Build Telegram (Debug - No Signing)
-      run: |
-        # Сборка debug версии для симулятора (не требует подписи)
-        python3 build-system/Make/Make.py --overrideXcodeVersion build \
-          --configurationPath=build-configuration.json \
-          --xcodeManagedCodesigning \
-          --configuration=debug_sim_arm64 \
-          --buildNumber=10001 \
-          || echo "Build completed with warnings"
-      continue-on-error: true
+      - name: Install Bazel
+        run: |
+          brew install bazelisk
+          bazel --version
 
-    - name: List build artifacts
-      run: |
-        echo "=== Checking bazel-bin ==="
-        ls -la bazel-bin/Telegram/ 2>/dev/null || echo "No Telegram artifacts"
-        find bazel-bin -name "*.app" -o -name "*.ipa" 2>/dev/null || echo "No app/ipa found"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: telegram-mod-build
-        path: |
-          bazel-bin/Telegram/*.app
-          bazel-bin/Telegram/*.ipa
-        if-no-files-found: warn
+      - name: Create build configuration
+        run: |
+          mkdir -p build-input/configuration-repository/provisioning
 
-    - name: Upload build logs
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: build-logs
-        path: |
-          bazel-out/**/test.log
-          bazel-out/**/*.log
-        if-no-files-found: ignore
+          cat > build-input/configuration-repository/variables.bzl << 'EOFVARS'
+          telegram_bazel_path = ""
+          telegram_bundle_id = "org.telegram.Telegram-iOS-Mod"
+          telegram_api_id = "0"
+          telegram_api_hash = ""
+          telegram_team_id = ""
+          telegram_app_center_id = ""
+          telegram_is_internal_build = "false"
+          telegram_is_appstore_build = "false"
+          telegram_appstore_id = "0"
+          telegram_app_specific_url_scheme = "tgmod"
+          telegram_premium_iap_product_id = ""
+          telegram_aps_environment = "development"
+          telegram_enable_siri = "false"
+          telegram_enable_icloud = "false"
+          telegram_use_xcode_managed_codesigning = "true"
+          EOFVARS
+
+          touch build-input/configuration-repository/WORKSPACE
+          echo 'module(name = "build_configuration")' > build-input/configuration-repository/MODULE.bazel
+          touch build-input/configuration-repository/BUILD
+
+          touch build-input/configuration-repository/provisioning/Telegram.mobileprovision
+          touch build-input/configuration-repository/provisioning/NotificationContent.mobileprovision
+          touch build-input/configuration-repository/provisioning/NotificationService.mobileprovision
+          touch build-input/configuration-repository/provisioning/Share.mobileprovision
+          touch build-input/configuration-repository/provisioning/Widget.mobileprovision
+          touch build-input/configuration-repository/provisioning/WatchApp.mobileprovision
+          touch build-input/configuration-repository/provisioning/WatchExtension.mobileprovision
+          touch build-input/configuration-repository/provisioning/Intents.mobileprovision
+          touch build-input/configuration-repository/provisioning/BroadcastUpload.mobileprovision
+
+          cat > build-input/configuration-repository/provisioning/BUILD << 'EOFPROV'
+          exports_files([
+              "Telegram.mobileprovision",
+              "NotificationContent.mobileprovision",
+              "NotificationService.mobileprovision",
+              "Share.mobileprovision",
+              "Widget.mobileprovision",
+              "WatchApp.mobileprovision",
+              "WatchExtension.mobileprovision",
+              "Intents.mobileprovision",
+              "BroadcastUpload.mobileprovision",
+          ])
+          EOFPROV
+
+      - name: Create configuration JSON
+        run: |
+          cat > build-configuration.json << 'EOFJSON'
+          {
+            "bundle_id": "org.telegram.Telegram-iOS-Mod",
+            "api_id": "0",
+            "api_hash": "",
+            "team_id": "",
+            "app_center_id": "",
+            "is_internal_build": false,
+            "is_appstore_build": false,
+            "appstore_id": "0",
+            "app_specific_url_scheme": "tgmod",
+            "premium_iap_product_id": "",
+            "enable_siri": false,
+            "enable_icloud": false
+          }
+          EOFJSON
+
+      - name: Build Telegram (Debug - No Signing)
+        run: |
+          python3 build-system/Make/Make.py --overrideXcodeVersion build \
+            --configurationPath=build-configuration.json \
+            --xcodeManagedCodesigning \
+            --configuration=debug_sim_arm64 \
+            --buildNumber=10001 \
+            || echo "Build completed with warnings"
+        continue-on-error: true
+
+      - name: List build artifacts
+        run: |
+          echo "=== Checking bazel-bin ==="
+          ls -la bazel-bin/Telegram/ 2>/dev/null || echo "No Telegram artifacts"
+          find bazel-bin -name "*.app" -o -name "*.ipa" 2>/dev/null || echo "No app/ipa found"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: telegram-mod-build
+          path: |
+            bazel-bin/Telegram/*.app
+            bazel-bin/Telegram/*.ipa
+          if-no-files-found: warn
