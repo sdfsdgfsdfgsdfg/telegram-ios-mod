@@ -7,6 +7,10 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+env:
+  RLOTTIE_REPO: TelegramMessenger/rlottie
+  TGCALLS_REPO: TelegramMessenger/tgcalls
+
 jobs:
   build:
     runs-on: macos-15
@@ -34,16 +38,14 @@ jobs:
           echo 'module(name = "sourcekit_bazel_bsp", version = "0.0.1")' > build-system/bazel-rules/sourcekit-bazel-bsp/MODULE.bazel
           echo '# Empty' > build-system/bazel-rules/sourcekit-bazel-bsp/BUILD
            
-          # Clone rlottie from Samsung
-          RLOTTIE_URL="https://github.com/Samsung/rlottie.git"
-          git clone --depth 1 "$RLOTTIE_URL" submodules/rlottie/rlottie || true
+          # Clone rlottie from TelegramMessenger (has FitzModifier)
+          git clone --depth 1 "https://github.com/$RLOTTIE_REPO.git" submodules/rlottie/rlottie || true
           
           # Clone LottieCpp
           git clone --depth 1 https://github.com/ali-fareed/lottiecpp.git submodules/LottieCpp/lottiecpp || true
           
           # Clone tgcalls from TelegramMessenger
-          TGCALLS_URL="https://github.com/TelegramMessenger/tgcalls.git"
-          git clone --depth 1 "$TGCALLS_URL" submodules/TgVoipWebrtc/tgcalls || true
+          git clone --depth 1 "https://github.com/$TGCALLS_REPO.git" submodules/TgVoipWebrtc/tgcalls || true
           
           # Clone other deps
           git clone --depth 1 https://github.com/tdlib/td.git third-party/td/td || true
@@ -110,14 +112,6 @@ jobs:
           echo '    "Intents.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
           echo '    "BroadcastUpload.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
           echo '])' >> build-input/configuration-repository/provisioning/BUILD
-          
-          echo "=== Debug: Verify configuration ==="
-          echo "--- provisioning BUILD ---"
-          cat build-input/configuration-repository/provisioning/BUILD
-          echo "--- provisioning files ---"
-          ls -la build-input/configuration-repository/provisioning/
-          echo "--- MODULE.bazel ---"
-          cat build-input/configuration-repository/MODULE.bazel
 
       - name: Clean Bazel cache
         run: |
