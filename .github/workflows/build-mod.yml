@@ -89,7 +89,7 @@ jobs:
           echo 'telegram_aps_environment = "development"' >> build-input/configuration-repository/variables.bzl
           echo 'telegram_enable_siri = "false"' >> build-input/configuration-repository/variables.bzl
           echo 'telegram_enable_icloud = "false"' >> build-input/configuration-repository/variables.bzl
-          echo 'telegram_use_xcode_managed_codesigning = "true"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_use_xcode_managed_codesigning = False' >> build-input/configuration-repository/variables.bzl
           
           touch build-input/configuration-repository/WORKSPACE
           echo 'module(name = "build_configuration")' > build-input/configuration-repository/MODULE.bazel
@@ -145,7 +145,7 @@ jobs:
         run: |
           python3 build-system/Make/Make.py --overrideXcodeVersion build \
             --configurationPath=build-configuration.json \
-            --xcodeManagedCodesigning \
+            --disableProvisioningProfiles \
             --configuration=debug_sim_arm64 \
             --buildNumber=10001 || echo "Build completed with warnings"
         continue-on-error: true
