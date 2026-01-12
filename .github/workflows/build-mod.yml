@@ -58,23 +58,21 @@ jobs:
         run: |
           mkdir -p build-input/configuration-repository/provisioning
           
-          cat > build-input/configuration-repository/variables.bzl << 'BZLEOF'
-          telegram_bazel_path = ""
-          telegram_bundle_id = "org.telegram.Telegram-iOS-Mod"
-          telegram_api_id = "0"
-          telegram_api_hash = ""
-          telegram_team_id = ""
-          telegram_app_center_id = ""
-          telegram_is_internal_build = "false"
-          telegram_is_appstore_build = "false"
-          telegram_appstore_id = "0"
-          telegram_app_specific_url_scheme = "tgmod"
-          telegram_premium_iap_product_id = ""
-          telegram_aps_environment = "development"
-          telegram_enable_siri = "false"
-          telegram_enable_icloud = "false"
-          telegram_use_xcode_managed_codesigning = "true"
-          BZLEOF
+          echo 'telegram_bazel_path = ""' > build-input/configuration-repository/variables.bzl
+          echo 'telegram_bundle_id = "org.telegram.Telegram-iOS-Mod"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_api_id = "0"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_api_hash = ""' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_team_id = ""' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_app_center_id = ""' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_is_internal_build = "false"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_is_appstore_build = "false"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_appstore_id = "0"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_app_specific_url_scheme = "tgmod"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_premium_iap_product_id = ""' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_aps_environment = "development"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_enable_siri = "false"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_enable_icloud = "false"' >> build-input/configuration-repository/variables.bzl
+          echo 'telegram_use_xcode_managed_codesigning = "true"' >> build-input/configuration-repository/variables.bzl
           
           touch build-input/configuration-repository/WORKSPACE
           echo 'module(name = "build_configuration")' > build-input/configuration-repository/MODULE.bazel
@@ -84,38 +82,39 @@ jobs:
             touch "build-input/configuration-repository/provisioning/${p}.mobileprovision"
           done
           
-          cat > build-input/configuration-repository/provisioning/BUILD << 'BUILDEOF'
-          exports_files([
-              "Telegram.mobileprovision",
-              "NotificationContent.mobileprovision",
-              "NotificationService.mobileprovision",
-              "Share.mobileprovision",
-              "Widget.mobileprovision",
-              "WatchApp.mobileprovision",
-              "WatchExtension.mobileprovision",
-              "Intents.mobileprovision",
-              "BroadcastUpload.mobileprovision",
-          ])
-          BUILDEOF
+          echo 'exports_files([' > build-input/configuration-repository/provisioning/BUILD
+          echo '    "Telegram.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
+          echo '    "NotificationContent.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
+          echo '    "NotificationService.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
+          echo '    "Share.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
+          echo '    "Widget.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
+          echo '    "WatchApp.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
+          echo '    "WatchExtension.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
+          echo '    "Intents.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
+          echo '    "BroadcastUpload.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
+          echo '])' >> build-input/configuration-repository/provisioning/BUILD
+          
+          echo "=== Verifying BUILD file ==="
+          cat build-input/configuration-repository/provisioning/BUILD
+          echo "=== Listing provisioning files ==="
+          ls -la build-input/configuration-repository/provisioning/
 
       - name: Create configuration JSON
         run: |
-          cat > build-configuration.json << 'JSONEOF'
-          {
-            "bundle_id": "org.telegram.Telegram-iOS-Mod",
-            "api_id": "0",
-            "api_hash": "",
-            "team_id": "",
-            "app_center_id": "",
-            "is_internal_build": false,
-            "is_appstore_build": false,
-            "appstore_id": "0",
-            "app_specific_url_scheme": "tgmod",
-            "premium_iap_product_id": "",
-            "enable_siri": false,
-            "enable_icloud": false
-          }
-          JSONEOF
+          echo '{' > build-configuration.json
+          echo '  "bundle_id": "org.telegram.Telegram-iOS-Mod",' >> build-configuration.json
+          echo '  "api_id": "0",' >> build-configuration.json
+          echo '  "api_hash": "",' >> build-configuration.json
+          echo '  "team_id": "",' >> build-configuration.json
+          echo '  "app_center_id": "",' >> build-configuration.json
+          echo '  "is_internal_build": false,' >> build-configuration.json
+          echo '  "is_appstore_build": false,' >> build-configuration.json
+          echo '  "appstore_id": "0",' >> build-configuration.json
+          echo '  "app_specific_url_scheme": "tgmod",' >> build-configuration.json
+          echo '  "premium_iap_product_id": "",' >> build-configuration.json
+          echo '  "enable_siri": false,' >> build-configuration.json
+          echo '  "enable_icloud": false' >> build-configuration.json
+          echo '}' >> build-configuration.json
 
       - name: Build Telegram
         run: |
