@@ -155,7 +155,33 @@ jobs:
 
       - name: Build Telegram
         run: |
-          # Build simplified app without extensions
+          # First, run bazel to populate external cache, then patch it
+          bazel fetch //Telegram:spm_build_app 2>&1 || true
+          
+          # Find and patch rules_apple in bazel cache
+          BAZEL_CACHE=$(bazel info output_base)/external/rules_apple+
+          PROV_FILE="$BAZEL_CACHE/apple/internal/partials/provisioning_profile.bzl"
+          
+          echo "=== Bazel cache location ==="
+          echo "$BAZEL_CACHE"
+          ls -la "$BAZEL_CACHE" 2>/dev/null || echo "Cache not found"
+          
+          if [ -f "$PROV_FILE" ]; then
+            echo "=== Original file (lines 38-45) ==="
+            sed -n '38,45p' "$PROV_FILE"
+            
+            echo "Patching rules_apple in Bazel cache..."
+            # Comment out the entire if block that checks for provisioning profile
+            sed -i '' '38,44s/^/# /' "$PROV_FILE"
+            
+            echo "=== Patched file (lines 38-45) ==="
+            sed -n '38,45p' "$PROV_FILE"
+          else
+            echo "ERROR: Could not find provisioning_profile.bzl at $PROV_FILE"
+            find "$(bazel info output_base)/external" -name "provisioning_profile.bzl" 2>/dev/null || true
+          fi
+          
+          # Now build
           bazel build //Telegram:spm_build_app \
             --announce_rc \
             --features=swift.use_global_module_cache \
