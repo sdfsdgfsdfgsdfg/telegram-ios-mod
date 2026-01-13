@@ -165,19 +165,18 @@ jobs:
           echo "=== Bazel output_base: $BAZEL_OUTPUT ==="
           
           if [ -f "$PROV_FILE" ]; then
-            echo "=== Original file (lines 38-50) ==="
-            sed -n '38,50p' "$PROV_FILE"
+            echo "=== Original file (lines 39-48) ==="
+            sed -n '39,48p' "$PROV_FILE"
             
             echo "Patching rules_apple in Bazel cache..."
-            # Create patched version: keep lines 1-38, add simple return, skip lines 39-45, keep rest
-            head -38 "$PROV_FILE" > /tmp/patched.bzl
-            echo '    if not profile_artifact:' >> /tmp/patched.bzl
+            # Lines 40-46 contain the fail() block. Keep 1-39, replace 40-46 with return, keep 47+
+            head -39 "$PROV_FILE" > /tmp/patched.bzl
             echo '        return struct(bundle_files = [])' >> /tmp/patched.bzl
-            tail -n +46 "$PROV_FILE" >> /tmp/patched.bzl
+            tail -n +47 "$PROV_FILE" >> /tmp/patched.bzl
             cp /tmp/patched.bzl "$PROV_FILE"
             
-            echo "=== Patched file (lines 38-50) ==="
-            sed -n '38,50p' "$PROV_FILE"
+            echo "=== Patched file (lines 39-48) ==="
+            sed -n '39,48p' "$PROV_FILE"
           else
             echo "ERROR: Could not find provisioning_profile.bzl"
             find "$BAZEL_OUTPUT/external" -name "provisioning_profile.bzl" 2>/dev/null || true
