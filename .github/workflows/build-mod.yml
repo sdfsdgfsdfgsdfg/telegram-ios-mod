@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-14
 
     steps:
       - name: Checkout repository
@@ -74,13 +74,17 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          xcode-version: '15.4'
 
       - name: Install Bazel and dependencies
         run: |
           brew install bazelisk pkg-config yasm nasm
           bazel --version
           pkg-config --version
+          
+      - name: Clean Bazel cache
+        run: |
+          bazel clean --expunge || true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -187,6 +191,7 @@ jobs:
             --define=buildNumber=10001 \
             --define=telegramVersion=12.3 \
             -c opt \
+            --apple_platform_type=ios \
             --ios_multi_cpus=arm64 \
             --watchos_cpus=arm64_32 \
             --features=swift.opt_uses_wmo \
