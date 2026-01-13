@@ -173,6 +173,14 @@ jobs:
           ls -la bazel-bin/Telegram/ 2>/dev/null || echo "No artifacts"
           find bazel-bin -name "*.app" 2>/dev/null || true
 
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Telegram-Mod-IPA
+          path: bazel-bin/Telegram/Telegram.ipa
+          if-no-files-found: warn
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         if: always()
