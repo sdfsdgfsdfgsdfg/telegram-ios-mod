@@ -150,8 +150,7 @@ jobs:
             --configurationPath=build-configuration.json \
             --xcodeManagedCodesigning \
             --configuration=release_arm64 \
-            --buildNumber=10001 \
-            --bazelArguments="--jobs=HOST_CPUS*2" 2>&1 | tee build.log || echo "Build completed with warnings"
+            --buildNumber=10001 2>&1 | tee build.log || echo "Build completed with warnings"
         continue-on-error: true
         timeout-minutes: 180
 
