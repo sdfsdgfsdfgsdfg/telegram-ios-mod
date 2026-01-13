@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-15-xlarge
 
     steps:
       - name: Checkout repository
@@ -68,7 +68,8 @@ jobs:
 
       - name: Install Bazel and dependencies
         run: |
-          brew install bazelisk pkg-config yasm nasm
+          brew install bazelisk pkg-config yasm nasm &
+          wait
           bazel --version
           pkg-config --version
 
@@ -123,8 +124,10 @@ jobs:
           path: |
             ~/.cache/bazel
             ~/.cache/bazelisk
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'WORKSPACE', 'BUILD.bazel') }}
+            ~/.bazel-disk-cache
+          key: bazel-${{ runner.os }}-xlarge-${{ hashFiles('MODULE.bazel', 'WORKSPACE', 'BUILD.bazel') }}
           restore-keys: |
+            bazel-${{ runner.os }}-xlarge-
             bazel-${{ runner.os }}-
 
       - name: Create configuration JSON
@@ -150,6 +153,7 @@ jobs:
             --configurationPath=build-configuration.json \
             --xcodeManagedCodesigning \
             --configuration=release_sim_arm64 \
+            --cacheDir="$HOME/.bazel-disk-cache" \
             --buildNumber=10001 2>&1 | tee build.log || echo "Build completed with warnings"
         continue-on-error: true
         timeout-minutes: 180
