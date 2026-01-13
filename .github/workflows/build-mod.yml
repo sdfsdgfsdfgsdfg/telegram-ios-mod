@@ -19,41 +19,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
-          fetch-depth: 0
+          submodules: false
+          fetch-depth: 1
 
       - name: Initialize submodules
         run: |
           set +e
-          mkdir -p build-system/bazel-rules
-          mkdir -p third-party/td third-party/webrtc third-party/libvpx third-party/dav1d third-party/XcodeGen
+          
+          # Parallel clone all repos
+          mkdir -p build-system/bazel-rules third-party/td third-party/webrtc third-party/libvpx third-party/dav1d third-party/XcodeGen
           mkdir -p submodules/rlottie submodules/TgVoipWebrtc submodules/LottieCpp
           
-          git clone --depth 1 https://github.com/bazelbuild/rules_swift.git build-system/bazel-rules/rules_swift 2>/dev/null || true
-          git clone --depth 1 https://github.com/ali-fareed/rules_apple.git build-system/bazel-rules/rules_apple 2>/dev/null || true
-          git clone --depth 1 https://github.com/bazelbuild/apple_support.git build-system/bazel-rules/apple_support 2>/dev/null || true
-          git clone --depth 1 https://github.com/MobileNativeFoundation/rules_xcodeproj.git build-system/bazel-rules/rules_xcodeproj 2>/dev/null || true
+          (git clone --depth 1 https://github.com/bazelbuild/rules_swift.git build-system/bazel-rules/rules_swift 2>/dev/null || true) &
+          (git clone --depth 1 https://github.com/ali-fareed/rules_apple.git build-system/bazel-rules/rules_apple 2>/dev/null || true) &
+          (git clone --depth 1 https://github.com/bazelbuild/apple_support.git build-system/bazel-rules/apple_support 2>/dev/null || true) &
+          (git clone --depth 1 https://github.com/MobileNativeFoundation/rules_xcodeproj.git build-system/bazel-rules/rules_xcodeproj 2>/dev/null || true) &
+          (git clone --depth 1 "https://github.com/$RLOTTIE_REPO.git" submodules/rlottie/rlottie || true) &
+          (git clone --depth 1 https://github.com/ali-fareed/lottiecpp.git submodules/LottieCpp/lottiecpp || true) &
+          (git clone --depth 1 "https://github.com/$TGCALLS_REPO.git" submodules/TgVoipWebrtc/tgcalls || true) &
+          (git clone --depth 1 https://github.com/tdlib/td.git third-party/td/td || true) &
+          (git clone --depth 1 --branch v1.13.1 https://github.com/webmproject/libvpx.git third-party/libvpx/libvpx || true) &
+          (git clone --depth 1 https://github.com/ali-fareed/dav1d.git third-party/dav1d/dav1d || true) &
+          (git clone --depth 1 https://github.com/yonaskolb/XcodeGen.git third-party/XcodeGen || true) &
+          (git clone --depth 1 https://github.com/ali-fareed/webrtc.git third-party/webrtc/webrtc || true) &
+          
+          wait
           
           mkdir -p build-system/bazel-rules/sourcekit-bazel-bsp
           echo 'module(name = "sourcekit_bazel_bsp", version = "0.0.1")' > build-system/bazel-rules/sourcekit-bazel-bsp/MODULE.bazel
           echo '# Empty' > build-system/bazel-rules/sourcekit-bazel-bsp/BUILD
-           
-          # Clone rlottie from TelegramMessenger (has FitzModifier)
-          git clone --depth 1 "https://github.com/$RLOTTIE_REPO.git" submodules/rlottie/rlottie || true
-          
-          # Clone LottieCpp
-          git clone --depth 1 https://github.com/ali-fareed/lottiecpp.git submodules/LottieCpp/lottiecpp || true
-          
-          # Clone tgcalls from TelegramMessenger
-          git clone --depth 1 "https://github.com/$TGCALLS_REPO.git" submodules/TgVoipWebrtc/tgcalls || true
-          
-          # Clone other deps
-          git clone --depth 1 https://github.com/tdlib/td.git third-party/td/td || true
-          # Clone libvpx at a specific tag that works with the arm64 simulator patch
-          git clone --depth 1 --branch v1.13.1 https://github.com/webmproject/libvpx.git third-party/libvpx/libvpx || true
-          git clone --depth 1 https://github.com/ali-fareed/dav1d.git third-party/dav1d/dav1d || true
-          git clone --depth 1 https://github.com/yonaskolb/XcodeGen.git third-party/XcodeGen || true
-          git clone --depth 1 https://github.com/ali-fareed/webrtc.git third-party/webrtc/webrtc || true
           
           # Patch WebRTC for FFmpeg 7.x compatibility (reordered_opaque was removed)
           if [ -f "third-party/webrtc/webrtc/modules/video_coding/codecs/h264/h264_decoder_impl.cc" ]; then
@@ -64,7 +58,6 @@ jobs:
             echo "WebRTC patch applied"
           fi
           
-          # Debug: check rlottie
           echo "=== rlottie contents ==="
           ls -la submodules/rlottie/rlottie/ || echo "rlottie empty"
 
@@ -124,10 +117,15 @@ jobs:
           echo '    "BroadcastUpload.mobileprovision",' >> build-input/configuration-repository/provisioning/BUILD
           echo '])' >> build-input/configuration-repository/provisioning/BUILD
 
-      - name: Clean Bazel cache
-        run: |
-          bazel clean --expunge || true
-          rm -rf ~/.cache/bazel || true
+      - name: Cache Bazel
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'WORKSPACE', 'BUILD.bazel') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
 
       - name: Create configuration JSON
         run: |
@@ -152,7 +150,8 @@ jobs:
             --configurationPath=build-configuration.json \
             --xcodeManagedCodesigning \
             --configuration=release_arm64 \
-            --buildNumber=10001 2>&1 | tee build.log || echo "Build completed with warnings"
+            --buildNumber=10001 \
+            --bazelArguments="--jobs=HOST_CPUS*2" 2>&1 | tee build.log || echo "Build completed with warnings"
         continue-on-error: true
         timeout-minutes: 180
 
