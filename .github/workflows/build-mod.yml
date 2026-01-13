@@ -174,41 +174,11 @@ jobs:
             cp patches/provisioning_profile_patched.bzl "$PROV_FILE"
           fi
           
-          # Patch codesigning_support.bzl - replace _validate_provisioning_profile function
+          # Patch codesigning_support.bzl
           CODESIGN_FILE="$BAZEL_OUTPUT/external/rules_apple+/apple/internal/codesigning_support.bzl"
           if [ -f "$CODESIGN_FILE" ]; then
             echo "Patching codesigning_support.bzl..."
-            
-            # Create a Python script to patch the file
-            cat > /tmp/patch_codesign.py << 'PYEOF'
-import re
-import sys
-
-with open(sys.argv[1], 'r') as f:
-    content = f.read()
-
-# Replace the _validate_provisioning_profile function to not fail
-old_pattern = r'def _validate_provisioning_profile\([^)]*\):.*?(?=\ndef |\Z)'
-new_func = '''def _validate_provisioning_profile(
-        *,
-        platform_type,
-        provisioning_profile,
-        provisioning_profile_is_optional):
-    # PATCHED: Skip provisioning profile validation for TrollStore/jailbreak builds
-    return
-
-'''
-
-content = re.sub(old_pattern, new_func, content, flags=re.DOTALL)
-
-with open(sys.argv[1], 'w') as f:
-    f.write(content)
-
-print("Patched successfully")
-PYEOF
-            
-            python3 /tmp/patch_codesign.py "$CODESIGN_FILE"
-            
+            python3 patches/patch_codesign.py "$CODESIGN_FILE"
             echo "=== Patched codesigning_support.bzl (lines 215-235) ==="
             sed -n '215,235p' "$CODESIGN_FILE"
           else
