@@ -60,6 +60,14 @@ jobs:
           
           echo "=== rlottie contents ==="
           ls -la submodules/rlottie/rlottie/ || echo "rlottie empty"
+          
+          # Patch rules_apple to skip provisioning profile check for device builds
+          PROV_FILE="build-system/bazel-rules/rules_apple/apple/internal/partials/provisioning_profile.bzl"
+          if [ -f "$PROV_FILE" ]; then
+            echo "Patching rules_apple to skip provisioning profile requirement..."
+            sed -i '' 's/fail(/# fail(/g' "$PROV_FILE"
+            echo "rules_apple patched"
+          fi
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
