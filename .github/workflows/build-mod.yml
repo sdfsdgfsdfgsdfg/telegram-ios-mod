@@ -158,25 +158,21 @@ jobs:
           # First, run bazel to populate external cache, then patch it
           bazel fetch //Telegram:spm_build_app 2>&1 || true
           
-          # Find and patch rules_apple in bazel cache
+          # Find and patch rules_apple in bazel cache - copy our pre-patched file
           BAZEL_OUTPUT=$(bazel info output_base)
           PROV_FILE="$BAZEL_OUTPUT/external/rules_apple+/apple/internal/partials/provisioning_profile.bzl"
           
           echo "=== Bazel output_base: $BAZEL_OUTPUT ==="
           
           if [ -f "$PROV_FILE" ]; then
-            echo "=== Original file (lines 39-48) ==="
-            sed -n '39,48p' "$PROV_FILE"
+            echo "=== Original file ==="
+            cat "$PROV_FILE"
             
-            echo "Patching rules_apple in Bazel cache..."
-            # Lines 40-46 contain the fail() block. Keep 1-39, replace 40-46 with return, keep 47+
-            head -39 "$PROV_FILE" > /tmp/patched.bzl
-            echo '        return struct(bundle_files = [])' >> /tmp/patched.bzl
-            tail -n +47 "$PROV_FILE" >> /tmp/patched.bzl
-            cp /tmp/patched.bzl "$PROV_FILE"
+            echo "Replacing with patched version from repo..."
+            cp patches/provisioning_profile_patched.bzl "$PROV_FILE"
             
-            echo "=== Patched file (lines 39-48) ==="
-            sed -n '39,48p' "$PROV_FILE"
+            echo "=== Patched file ==="
+            cat "$PROV_FILE"
           else
             echo "ERROR: Could not find provisioning_profile.bzl"
             find "$BAZEL_OUTPUT/external" -name "provisioning_profile.bzl" 2>/dev/null || true
