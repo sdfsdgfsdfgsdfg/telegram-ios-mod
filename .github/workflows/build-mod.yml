@@ -60,14 +60,6 @@ jobs:
           
           echo "=== rlottie contents ==="
           ls -la submodules/rlottie/rlottie/ || echo "rlottie empty"
-          
-          # Patch rules_apple to skip provisioning profile check for device builds
-          PROV_FILE="build-system/bazel-rules/rules_apple/apple/internal/partials/provisioning_profile.bzl"
-          if [ -f "$PROV_FILE" ]; then
-            echo "Patching rules_apple to skip provisioning profile requirement..."
-            sed -i '' 's/fail(/# fail(/g' "$PROV_FILE"
-            echo "rules_apple patched"
-          fi
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -154,8 +146,8 @@ jobs:
 
       - name: Build Telegram
         run: |
-          # Build for real device (arm64) with provisioning profiles disabled
-          bazel build Telegram/Telegram \
+          # Build simplified app without extensions
+          bazel build //Telegram:spm_build_app \
             --announce_rc \
             --features=swift.use_global_module_cache \
             --verbose_failures \
@@ -169,7 +161,7 @@ jobs:
             --features=swift.opt_uses_osize \
             --features=dead_strip \
             --objc_enable_binary_stripping \
-            --//Telegram:disableProvisioningProfiles \
+            --//Telegram:disableProvisioningProfiles=True \
             2>&1 | tee build.log || echo "Build completed with warnings"
         continue-on-error: true
         timeout-minutes: 180
