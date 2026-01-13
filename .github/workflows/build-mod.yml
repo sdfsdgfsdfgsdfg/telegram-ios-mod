@@ -60,6 +60,16 @@ jobs:
           
           echo "=== rlottie contents ==="
           ls -la submodules/rlottie/rlottie/ || echo "rlottie empty"
+          
+          # Patch rules_apple to allow building without provisioning profiles
+          PROV_FILE="build-system/bazel-rules/rules_apple/apple/internal/partials/provisioning_profile.bzl"
+          if [ -f "$PROV_FILE" ]; then
+            echo "Patching rules_apple provisioning_profile.bzl..."
+            # Replace the fail() call with a pass (return empty partial result)
+            sed -i '' 's/fail("ERROR: In @@{label_name}:\\nBuilding for device, but no provisioning_profile attribute was set."\.format(label_name = str(ctx\.label)))/return struct(files = depset(), providers = [])  # Patched: skip provisioning check/g' "$PROV_FILE"
+            echo "=== Patched file content (lines 35-50) ==="
+            sed -n '35,50p' "$PROV_FILE"
+          fi
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -121,9 +131,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cache/bazel
             ~/.cache/bazelisk
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'WORKSPACE', 'BUILD.bazel') }}
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'WORKSPACE', 'BUILD.bazel') }}-v2
           restore-keys: |
             bazel-${{ runner.os }}-
 
