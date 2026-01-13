@@ -151,10 +151,10 @@ jobs:
           python3 build-system/Make/Make.py --overrideXcodeVersion build \
             --configurationPath=build-configuration.json \
             --xcodeManagedCodesigning \
-            --configuration=debug_sim_arm64 \
+            --configuration=release_arm64 \
             --buildNumber=10001 2>&1 | tee build.log || echo "Build completed with warnings"
         continue-on-error: true
-        timeout-minutes: 120
+        timeout-minutes: 180
 
       - name: Show build errors
         if: always()
